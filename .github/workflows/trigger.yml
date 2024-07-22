@@ -1,0 +1,41 @@
+name: Build
+
+on:
+  push:
+    branches: [ main ]
+    paths-ignore: '**.md'
+  pull_request:
+    branches: [ main ]
+    paths-ignore: '**.md'
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: koide3/external_push_test
+          token:  ${{ secrets.PAT }}
+          path: external_push_test
+        
+      - uses: actions/checkout@v4
+        with:
+          repository: koide3/external_push_trigger
+          path: external_push_trigger
+
+      - run: cp -r external_push_trigger/contents/* external_push_test/
+
+      - run: |
+            git config --global user.name "k.koide"
+            git config --global user.email "k.koide@aist.go.jp"
+            cd external_push_test
+            git add .
+            git commit -m "Update contents"
+            git push origin main
+
+
+# token: ${{ secrets.PAT }}
